@@ -1,0 +1,11 @@
+* {
+  margin: 0px;
+  padding: 0px;
+}
+
+.filter-card {
+  min-height: 30px;
+  max-width: 400px;
+  right: 10px;
+  z-index: 1000;
+}

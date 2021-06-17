@@ -1,0 +1,154 @@
+import React, {useEffect, useState, useContext, Component} from "react";
+import { GlobalContext } from "../context/globalcontext";
+import DataTable from  'react-data-table-component'
+import _ from 'lodash';
+import { Loader } from "./progress";
+import apiConfig from '../config.json';
+import TableFiltter from './filter'
+
+const columns = [
+    {
+      name: "City",
+      selector: "city",
+      sortable: true
+    },
+    {
+      name: "Latitude",
+      selector: "latitude",
+      sortable: true
+    },
+    {
+      name: "Longitude",
+      selector: "longitude",
+      sortable: true,
+      right: true
+    }, {
+        name:"Country",
+        selector: "country",
+        sortable: true,
+        right: true
+    },
+    {
+        name:"Citycode",
+        selector: "citycode",
+        sortable: true,
+        right: true
+    },
+    {
+        name:"Density",
+        selector: "density",
+        sortable: true,
+        right: true
+    },
+    {
+        name:"Timezone",
+        selector: "timezone",
+        sortable: true,
+        right: true
+    }
+  ];
+
+export function DataView() {    
+    const  {id,setId, reset} = useContext(GlobalContext);
+    let [data,setData] = useState();
+    let [totalRows,setTotalRows] = useState(1000);
+    let [countPerPage,setPerPageCount] = useState(25);
+    let [currentpage, setPage] = useState(1);
+    let [sourtColumnState,setSortColumn] = useState(null);
+    let [sortDirectionState,setSortDirection] = useState(null);
+    let [searchKey, setSearchKey] = useState('');
+    let [Dataloading,SetDataLoading] = useState(false);
+
+    const getData = async (offset = 0, count = 25,sortcolumn=null,sortDirection="ASC",search = '') => {
+        SetDataLoading(true);
+        
+        let url = `${apiConfig.baseurl}/data?id=${id}&offset=${offset}&count=${count}`;
+
+        if(sortcolumn != null || sourtColumnState != null) {
+            url += `&field=${sortcolumn || sourtColumnState}&sort=${sortDirection || sortDirectionState}`
+        }
+
+        if(search != '' || searchKey != (null || '')) {
+            url += `&query=${searchKey || search}`
+        }
+
+        let res = await fetch(url);
+        const rawdata =  await res.json();
+        setData(rawdata.data);
+        setTotalRows(rawdata.count);
+        SetDataLoading(false);
+        return rawdata;
+    }
+
+    const handlePageChange = (currentpage) => {
+        console.log(currentpage);
+        setPage(currentpage);
+        getData(countPerPage * (currentpage -1), countPerPage);
+    }
+
+    const handleRowPerPageChange =  (count, currentpage) => {
+        console.log(count , currentpage)
+        setPerPageCount(count);
+        getData(count * (currentpage -1),count);
+    }
+
+    const handleSort = (column,sortdirection,event) => {
+        console.log(column,sortdirection,event);
+        setSortColumn(column.selector)
+        setSortDirection(sortdirection)
+        getData(countPerPage * (currentpage -1), countPerPage,column.selector,sortdirection)
+    }
+
+    const search = (event) => {
+        const key = event.target.value
+        setSearchKey(key);
+    }
+
+    useEffect(() => {
+        getData(countPerPage * (currentpage -1), countPerPage, null, null,'')
+    },[searchKey])
+
+    useEffect(() =>{
+        getData();
+    },[])
+
+    return(
+        <section className="vh-100 w-100 bg-light">
+            <article className="p-3">
+                <article className="d-flex my-4 justify-content-between">
+                    <div class="input-group w-25"> 
+                        <input onChange={_.debounce(search,500)} type="search" placeholder="Search.." class="form-control"/>
+                    </div>
+                    <button type="button" className="btn-close align-self-center" aria-label="Close" onClick={reset}></button>
+                </article>
+
+                <TableFiltter/>
+
+                <DataTable 
+                title="Data"
+                className="shadow"
+                columns={columns}
+                data={data}
+                highlightOnHover
+                striped
+                pagination
+                paginationServer
+                paginationTotalRows={totalRows}
+                paginationRowsPerPageOptions={[25,50,75,100,500,1000]}
+                paginationDefaultPage={currentpage}
+                paginationPerPage={countPerPage}
+                onChangePage={handlePageChange}
+                onChangeRowsPerPage={handleRowPerPageChange}
+                paginationServer
+                selectableRows
+                sortServer
+                onSort={handleSort}
+                progressPending ={Dataloading}
+                progressComponent={<Loader/>}
+                highlightOnHover
+                />
+
+            </article>
+        </section>
+    )
+}  

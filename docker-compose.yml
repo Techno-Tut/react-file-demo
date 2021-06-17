@@ -1,0 +1,36 @@
+version: "3.4"
+services: 
+    demo-database:
+        container_name: "database"
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        expose: 
+            - '1433'
+        environment: 
+            - "ACCEPT_EULA=Y"
+            - "SA_PASSWORD=test@123"
+        ports:
+            - "1433:1433"
+        volumes: 
+            - "./db/secrets:/var/opt/mssql/secrets"
+            - "./db/data:/var/opt/mssql/data" 
+            - "./db/log:/var/opt/mssql/log" 
+    demoapi:
+        container_name: "demoapi"
+        build: 
+            context: ./upload-api/
+            dockerfile: Dockerfile
+        expose: 
+            - "8000"
+        depends_on: 
+            - "demo-database"
+        ports:
+            - "8000:8000"
+    demoui:
+        container_name: "demoui"
+        build: 
+            context: ./upload-demo/
+            dockerfile: Dockerfile
+        ports: 
+            - "8080:3000"
+        depends_on: 
+            - "demo-database"
