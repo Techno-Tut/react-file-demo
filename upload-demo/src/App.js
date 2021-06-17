@@ -8,14 +8,12 @@ import { useState } from 'react';
 function App() {
   let [id,setId] = useState(localStorage.getItem("Id"));
   let [loading, setLoad] = useState(false);
-  let [filter,setFilter] = useState({});
 
   return (
     <div className="App bg-light">
       <GlobalContext.Provider value={
         { id,
           loading,
-          filter,
         setId: (data) => { 
           setId(data)
           localStorage.setItem("Id", data)
@@ -27,11 +25,6 @@ function App() {
           setId(null)
           setLoad(false)
           localStorage.clear();
-        },
-        setFilterAttr: (key,value) => {
-          const temp = filter;
-          temp[key]=value
-          setFilter(temp);
         }
         }}>
             {

@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import React, { useContext, useState } from 'react';
+import { Popover } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import { GlobalContext } from '../context/globalcontext';
 
 
 const data = [{}]
 
-export default function TableFiltter() {
-    let {filter ,setFilterAttr} = useContext(GlobalContext);
+export default function TableFiltter({filterHandler,restHandler}) {
 
     const columns = [
         {
@@ -44,18 +44,35 @@ export default function TableFiltter() {
         let el = event.target;
         let data = el.value;
         let key = el.getAttribute("data-filter")
-        setFilterAttr(key,data);
-        console.log(data,key);
+        filterHandler(key,data);
+    }
+
+    const reset =() => {
+        document.querySelectorAll('[data-filter]').forEach(el => {
+            el.value = '';
+        });
+        restHandler();
     }
 
     return(
-        <section>
-            <DataTable 
-            title="Filter"
-            className="shadow"
-            columns={columns}
-            data={data}
-            />
-        </section>
+        <Popover id="popover-contained" className="filter shadow-lg">
+            <Popover.Content>
+                <section className="">
+                    {
+                        columns.map(el => {
+                            return(
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="basic-addon3">{el.name}</span>
+                                    </div>
+                                    {el.cell()}
+                                </div>           
+                            );
+                        })
+                    }
+                    <input type="button" className="btn btn-danger w-100" value="Reset" onClick={reset}></input>
+                </section>
+            </Popover.Content>
+        </Popover>
     );
 }
