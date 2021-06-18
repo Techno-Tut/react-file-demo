@@ -27,6 +27,13 @@ the application is exposed  on http://localhost:8080
 | API | 8000 |
 | database | 1433
 
+## Sample files
+sample file with data can be found in "Sample Files" directory for testing.
+| files | Total Records |
+| ------ | ------ |
+| fr.csv | 53K |
+| fr-Copy.csv | 2.3K |
+
 
 ####Note:
 I had a busy week and was uanable to give much time to the task, so not hosting it on cloud for now. 
