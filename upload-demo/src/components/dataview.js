@@ -52,6 +52,7 @@ const columns = [
 export function DataView() {    
     const {id , reset} = useContext(GlobalContext);
     let [data,setData] = useState();
+    let [tempData,setTempData] = useState();
     let [totalRows,setTotalRows] = useState(1000);
     let [countPerPage,setPerPageCount] = useState(25);
     let [currentpage, setPage] = useState(1);
@@ -79,13 +80,14 @@ export function DataView() {
         setData(rawdata.data);
         setTotalRows(rawdata.count);
         SetDataLoading(false);
+        setTempData(rawdata.data);
         return rawdata;
     }
 
     const handlePageChange = (currentpage) => {
         console.log(currentpage);
         setPage(currentpage);
-        getData(countPerPage * (currentpage -1), countPerPage);
+        //getData(countPerPage * (currentpage -1), countPerPage);
     }
 
     const handleRowPerPageChange =  (count, currentpage) => {
@@ -107,17 +109,18 @@ export function DataView() {
     }
 
     const Applyfilter = (filter) => {
-        if(!data)
+        console.log(tempData)
+        if(!tempData)
             return; 
         
         if(Object.keys(filter).length < 1)
             return;
 
-        let temp = data.filter(el => {
+        let temp = tempData.filter(el => {
             let bool = true;
             for(const [key,value] of Object.entries(filter)){
                 if(value && value != "") {
-                    bool = el[key].toString().toLocaleLowerCase().startsWith(value.toLocaleLowerCase())
+                    bool = bool && el[key].toString().toLocaleLowerCase().startsWith(value.toLocaleLowerCase())
                 }
             }
             return bool;
@@ -132,7 +135,7 @@ export function DataView() {
         const temp = filters;
         temp[key]=value
         setFilterAttr(temp);
-        Applyfilter(temp)
+        Applyfilter(temp);
     }
 
     const ResetFilter = () => {
@@ -143,7 +146,7 @@ export function DataView() {
 
     useEffect(() => {
         getData(countPerPage * (currentpage -1), countPerPage, null, null,'')
-    },[searchKey])
+    },[searchKey,currentpage])
 
     useEffect(() =>{
         getData();
