@@ -32,7 +32,7 @@ export  function Upload() {
             <form className="mt=5">
                 <label class="form-label" for="customFile">Upload data to get started.</label>
                 <input className="form-control" disabled={uploading} name="file" type="file" onChange={uploadData}></input>
-                <a type="button" className="btn btn-link text-dark" href="/Samples/random.csv"  download="template.csv">Download Template file..</a>
+                <a type="button" className="btn btn-link text-dark" href="/samples/random.csv"  download="template.csv">Download Template file..</a>
             </form>
         </section>
     );
